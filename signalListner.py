@@ -1,0 +1,1 @@
+# this is a class for listening any event for trading
