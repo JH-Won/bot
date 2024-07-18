@@ -1,3 +1,4 @@
 api-client
 logs/*.log
+*.txt
 __pycache__

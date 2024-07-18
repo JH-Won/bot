@@ -5,6 +5,7 @@ from logger import logger
 
 class Connector(object):
 
+    # static members, should be used as constants
     base_url = "https://openapi.koreainvestment.com:9443"
     header = {
         "Content-Type": "application/json; charset=UTF-8"
@@ -59,6 +60,7 @@ class Connector(object):
             logger.warning(str(e))
         
 
+# This is for test
 if __name__ == "__main__":
     Conn = Connector()
 
