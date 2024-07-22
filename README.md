@@ -1,5 +1,5 @@
 # bot
-This is personal python-api trade bot. 
+This is a personal python-api trade bot. 
 
 For korean securities, we use the open API of Koreainvestment securities. 
 
