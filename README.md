@@ -1,2 +1,2 @@
 # bot
-This is a python-api trade bot
+This is personal python-api trade bot
