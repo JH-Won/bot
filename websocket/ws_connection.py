@@ -5,6 +5,7 @@ import os
 import json
 from ws_utils import stockhoka
 
+
 def get_approval(key, secret):
     """웹소켓 접속키 발급"""
     url = "https://openapi.koreainvestment.com:9443"
@@ -66,8 +67,6 @@ async def test_connect():
                 if trid0 == "H0STASP0":  # 주식호가tr 일경우의 처리 단계
                     print("#### 주식호가 ####")
                     stockhoka(recvstr[3])
-                    await asyncio.sleep(0.1)
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(test_connect())
-    asyncio.get_event_loop().close()
+    asyncio.run(test_connect())

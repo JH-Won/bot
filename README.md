@@ -1,5 +1,6 @@
 # bot
-This is a python-api trade bot
+This is a personal python-api trade bot. 
 
-# What Now?
-Threre are fundamentally two seperate prediction objectives
+For korean securities, we use the open API of Koreainvestment securities. 
+
+And for crypto currecneis, we use both upbit (KRW) and binance (USD).

@@ -2,3 +2,6 @@ api-client
 logs/*.log
 *.txt
 __pycache__
+auth.json
+example_*
+test_*
