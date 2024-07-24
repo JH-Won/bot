@@ -1,4 +1,4 @@
-def stockhoka(data):
+def limit_orderbook(data):
     recvvalue = data.split('^')  # 수신데이터를 split '^'
 
     print("유가증권 단축 종목코드 [" + recvvalue[0] + "]")
@@ -42,3 +42,4 @@ def stockhoka(data):
     print("예상체결 전일대비율    [%s]" % (recvvalue[52]))
     print("누적거래량             [%s]" % (recvvalue[53]))
     print("주식매매 구분코드      [%s]" % (recvvalue[58]))
+
