@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+from datetime import datetime
 from logger import logger
 
 class Connector(object):
@@ -16,7 +17,21 @@ class Connector(object):
         self._appsecret = os.environ["APP_SECRET"]
         self.token_dict = self.__get_token()
 
+
+    def __is_token_expired(self):
+        try:
+            with open("token.json", "r") as token_dict:
+                token_dict = json.load(token_dict)
+                return datetime.now() > datetime.strptime(token_dict["access_token_token_expired"], "%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            logger.warning(str(e))
+            return False
+
     def __get_token(self):
+        if os.path.exists('./token.json') and (not self.__is_token_expired()):
+            with open("token.json", "r") as token_dict:
+                return json.load(token_dict)
+
         url = Connector.base_url + "/oauth2/tokenP"
 
         payload = {
@@ -35,31 +50,12 @@ class Connector(object):
                 logger.warning(ret["error_description"])
             else:
                 logger.info(f"Auth Token assigned : {ret}")
+                # write a daily token for cache
+                with open("token.json", "w") as token_dict:
+                    token_dict.write(json.dumps(ret))
                 return ret
         except Exception as e:
             logger.warning(str(e))
-
-    def __del__(self):
-        pass
-        # url = Connector.base_url + "/oauth2/revokeP"
-
-        # try:
-        #     payload = {
-        #         "appkey" : self._appkey,
-        #         "appsecret" : self._appsecret,
-        #         "token" : self.token_dict['access_token']
-        #     }
-
-        #     response = requests.post(
-        #         headers=Connector.header,
-        #         url=url,
-        #         data=payload
-        #     )
-        #     ret = response.json()
-        #     logger.info(f"{ret}")
-        # except Exception as e:
-        #     logger.warning(str(e))
-        
 
 # This is for test
 if __name__ == "__main__":

@@ -3,5 +3,6 @@ logs/*.log
 *.txt
 __pycache__
 auth.json
+token.json
 example_*
 test_*
