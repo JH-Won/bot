@@ -5,6 +5,8 @@ import os
 import json
 import sys
 from ws_io_utils import limit_orderbook
+
+sys.path.append("D:/python-api/")
 from logger import logger
 
 
@@ -66,7 +68,7 @@ async def connect(tr_id, tr_key, tr_type):
             if res_data[0] == '0':
                 recvstr = res_data.split('|')  # 수신데이터가 실데이터 이전은 '|'로 나뉘어져있어 split
                 trid0 = recvstr[1]
-                if not trid0 == "H0STASP0":
+                if not trid0 == "PINGPONG":
                     print("#### ORDER TABLE ####")
                     limit_orderbook(recvstr[3])
 

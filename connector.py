@@ -50,8 +50,8 @@ class Connector(object):
             }
 
             response = requests.post(
-                url=url,
                 headers=Connector.header,
+                url=url,
                 data=payload
             )
             ret = response.json()
