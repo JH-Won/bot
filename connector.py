@@ -12,8 +12,8 @@ class Connector(object):
     }
 
     def __init__(self):
-        self.__appkey = os.environ["APP_KEY"]
-        self.__appsecret = os.environ["APP_SECRET"]
+        self._appkey = os.environ["APP_KEY"]
+        self._appsecret = os.environ["APP_SECRET"]
         self.token_dict = self.__get_token()
 
     def __get_token(self):
@@ -21,8 +21,8 @@ class Connector(object):
 
         payload = {
             "grant_type" : "client_credentials",
-            "appkey" : self.__appkey,
-            "appsecret" : self.__appsecret
+            "appkey" : self._appkey,
+            "appsecret" : self._appsecret
         }
         try:
             response = requests.post(
@@ -40,28 +40,27 @@ class Connector(object):
             logger.warning(str(e))
 
     def __del__(self):
-        url = Connector.base_url + "/oauth2/revokeP"
+        pass
+        # url = Connector.base_url + "/oauth2/revokeP"
 
-        try:
-            payload = {
-                "appkey" : self.__appkey,
-                "appsecret" : self.__appsecret,
-                "token" : self.token_dict['access_token']
-            }
+        # try:
+        #     payload = {
+        #         "appkey" : self._appkey,
+        #         "appsecret" : self._appsecret,
+        #         "token" : self.token_dict['access_token']
+        #     }
 
-            response = requests.post(
-                headers=Connector.header,
-                url=url,
-                data=payload
-            )
-            ret = response.json()
-            logger.info(f"{ret}")
-        except Exception as e:
-            logger.warning(str(e))
+        #     response = requests.post(
+        #         headers=Connector.header,
+        #         url=url,
+        #         data=payload
+        #     )
+        #     ret = response.json()
+        #     logger.info(f"{ret}")
+        # except Exception as e:
+        #     logger.warning(str(e))
         
 
 # This is for test
 if __name__ == "__main__":
     Conn = Connector()
-
-    del Conn

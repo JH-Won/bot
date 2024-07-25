@@ -24,7 +24,7 @@ def get_approval(key, secret):
 
 async def connect(tr_id, tr_key, tr_type):
     '''
-    Connect websocket and send requests for real-time order book.
+    Connect websocket and send requests for real-time queries
     '''
     app_key = os.environ["APP_KEY"]
     app_secret = os.environ["APP_SECRET"]
