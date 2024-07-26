@@ -48,21 +48,20 @@ class ForeignMarketEngine(Connector):
         url = f"{Connector.base_url}/uapi/overseas-price/v1/quotations/dailyprice"
         headers = self.__format_headers(tr_id="HHDFS76240000")
         payload = {
-            "AUTH" : None,
+            "AUTH" : "",
             "EXCD" : exchanger_code,
             "SYMB" : stock_code,
-            "GUBN" : scale,
+            "GUBN" : str(scale),
             "BYMD" : start_from,
-            "MDDP" : "0"
+            "MODP" : "0"
         }
-        response = requests.post(
+        response = requests.get(
             url=url,
             headers=headers,
-            data=payload
+            params=payload
         )
 
         logger.info(response.json())
-        logger.info(response.text)
 
         
 if __name__ == "__main__":
