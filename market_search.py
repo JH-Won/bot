@@ -10,24 +10,26 @@ class DateScale(IntEnum):
     MONTH = 2
 
 class ExchangerCode():
-    @classmethod
-    def get_description():
-        return {
-            # HKS : 홍콩
-            # NYS : 뉴욕
-            # NAS : 나스닥
-            # AMS : 아멕스
-            # TSE : 도쿄
-            # SHS : 상해
-            # SZS : 심천
-            # SHI : 상해지수
-            # SZI : 심천지수
-            # HSX : 호치민
-            # HNX : 하노이
-            # BAY : 뉴욕(주간)
-            # BAQ : 나스닥(주간)
-            # BAA : 아멕스(주간)
-        }
+    @staticmethod
+    def view_code():
+        print("""
+    # 거래소 코드 
+    # HKS : 홍콩
+    # NYS : 뉴욕
+    # NAS : 나스닥
+    # AMS : 아멕스
+    # TSE : 도쿄
+    # SHS : 상해
+    # SZS : 심천
+    # SHI : 상해지수
+    # SZI : 심천지수
+    # HSX : 호치민
+    # HNX : 하노이
+    # BAY : 뉴욕(주간)
+    # BAQ : 나스닥(주간)
+    # BAA : 아멕스(주간)
+    """)
+            
 
 class ForeignMarketEngine(Connector):
     
@@ -61,10 +63,13 @@ class ForeignMarketEngine(Connector):
             params=payload
         )
 
-        logger.info(response.json())
+        # logger.info(response.json())
+        return response.json()
 
         
 if __name__ == "__main__":
     # this is test
     engine = ForeignMarketEngine()
     engine.get_historical_price("NAS", "TSLA", DateScale.MONTH, "20240724")
+    
+    ExchangerCode.view_code()
