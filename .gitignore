@@ -6,3 +6,4 @@ auth.json
 token.json
 example_*
 test_*
+logs

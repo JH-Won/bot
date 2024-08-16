@@ -2,7 +2,6 @@ from connector import Connector
 from enum import IntEnum
 import requests
 from logger import logger
-import json
 
 class DateScale(IntEnum):
     DAY = 0
@@ -31,45 +30,33 @@ class ExchangerCode():
     """)
             
 
-class ForeignMarketEngine(Connector):
+class ForeignMarket(Connector):
     
     def __init__(self):
         super().__init__()
-    
-    def __format_headers(self, tr_id):
-        return {
-            "Content-Type": "application/json; charset=UTF-8",
-            "authorization" : f"Bearer {self.token_dict['access_token']}",
-            "appkey" : self._appkey,
-            "appsecret" : self._appsecret,
-            "tr_id" : tr_id,
-            "custtype" : "P"
-        }
 
-    def get_historical_price(self, exchanger_code, stock_code, scale, start_from):
+    def get_historical_price(self, exchanger_code, ticker, scale, start_from):
         url = f"{Connector.base_url}/uapi/overseas-price/v1/quotations/dailyprice"
-        headers = self.__format_headers(tr_id="HHDFS76240000")
+        headers = self.form_common_headers(tr_id="HHDFS76240000", custtype="P")
         payload = {
             "AUTH" : "",
             "EXCD" : exchanger_code,
-            "SYMB" : stock_code,
+            "SYMB" : ticker,
             "GUBN" : str(scale),
             "BYMD" : start_from,
             "MODP" : "0"
         }
+        logger.info(payload)
         response = requests.get(
             url=url,
             headers=headers,
             params=payload
         )
 
-        # logger.info(response.json())
         return response.json()
 
         
 if __name__ == "__main__":
     # this is test
-    engine = ForeignMarketEngine()
+    engine = ForeignMarket()
     engine.get_historical_price("NAS", "TSLA", DateScale.MONTH, "20240724")
-    
-    ExchangerCode.view_code()

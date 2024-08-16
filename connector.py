@@ -17,7 +17,6 @@ class Connector(object):
         self._appsecret = os.environ["APP_SECRET"]
         self.token_dict = self.__get_token()
 
-
     def __is_token_expired(self):
         try:
             with open("token.json", "r") as token_dict:
@@ -56,6 +55,14 @@ class Connector(object):
                 return ret
         except Exception as e:
             logger.warning(str(e))
+    
+    def form_common_headers(self, **kwargs):
+        return {
+            "Content-Type": "application/json; charset=UTF-8",
+            "authorization" : f"Bearer {self.token_dict['access_token']}",
+            "appkey" : self._appkey,
+            "appsecret" : self._appsecret,
+        } | kwargs
 
 # This is for test
 if __name__ == "__main__":
