@@ -1,6 +1,8 @@
 import logging
 import os
 from datetime import datetime
+from system_utils import get_init_path
+
 
 class SingletoneType(type):
     def __call__(cls, *args, **kwargs):
@@ -20,7 +22,7 @@ class Logger(object):
         formatter = logging.Formatter("[%(levelname)s|%(filename)s:%(lineno)s] %(asctime)s > %(message)s")
 
 
-        dirname = "./logs"
+        dirname = get_init_path() + "/logs"
 
         if not os.path.isdir(dirname):
             os.mkdir(dirname)

@@ -3,11 +3,13 @@ import os
 import json
 from datetime import datetime
 from logger import logger
+from system_utils import get_init_path
 
 class Connector(object):
 
     # static members, should be used as constants
     base_url = "https://openapi.koreainvestment.com:9443"
+    token_path = f'{get_init_path()}/token.json'
     header = {
         "Content-Type": "application/json; charset=UTF-8"
     }
@@ -19,7 +21,7 @@ class Connector(object):
 
     def __is_token_expired(self):
         try:
-            with open("token.json", "r") as token_dict:
+            with open(self.token_path, "r") as token_dict:
                 token_dict = json.load(token_dict)
                 return datetime.now() > datetime.strptime(token_dict["access_token_token_expired"], "%Y-%m-%d %H:%M:%S")
         except Exception as e:
@@ -27,8 +29,8 @@ class Connector(object):
             return False
 
     def __get_token(self):
-        if os.path.exists('./token.json') and (not self.__is_token_expired()):
-            with open("token.json", "r") as token_dict:
+        if os.path.exists(self.token_path) and (not self.__is_token_expired()):
+            with open(self.token_path, "r") as token_dict:
                 return json.load(token_dict)
 
         url = Connector.base_url + "/oauth2/tokenP"
@@ -50,7 +52,7 @@ class Connector(object):
             else:
                 logger.info(f"Auth Token assigned : {ret}")
                 # write a daily token for cache
-                with open("token.json", "w") as token_dict:
+                with open(self.token_path, "w") as token_dict:
                     token_dict.write(json.dumps(ret))
                 return ret
         except Exception as e:
