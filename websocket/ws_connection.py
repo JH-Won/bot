@@ -4,9 +4,10 @@ import requests
 import os 
 import json
 import sys
-from ws_io_utils import limit_orderbook
 
-sys.path.append("D:/python-api/")
+sys.path.append('E:/bot')
+
+from websocket.ws_io_utils import print_orderbook
 from logger import logger
 
 
@@ -70,7 +71,7 @@ async def connect(tr_id, tr_key, tr_type):
                 trid0 = recvstr[1]
                 if not trid0 == "PINGPONG":
                     print("#### ORDER TABLE ####")
-                    limit_orderbook(recvstr[3])
+                    print_orderbook(recvstr[3])
 
 if __name__ == '__main__':
     tr_id = sys.argv[1]
