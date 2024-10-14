@@ -1,15 +1,9 @@
 from connector import Connector
-from enum import IntEnum
 import requests
 import json
 from logger import logger
 from overrides import overrides
-
-
-class OrderType(IntEnum):
-    on_quote : 0 # 
-    on_market : 1 # 
-
+from account import Account
 
 class OrderInterface(Connector):
     '''
@@ -31,18 +25,25 @@ class OrderInterface(Connector):
 
 class DomesticMarket(OrderInterface):
 
+    def __init__(self, account : Account):
+        account_no, prdt_cd = account.get_full_account()
+        self.account_no = account_no
+        self.prdt_cd = prdt_cd
+
     @overrides
     def order(self, ticker : str, quantity : int, price : int, **kwargs):
 
         isBuy = price > 0
         tr_id = "TTTC0802U" if isBuy else "TTTC0801U"
         order_type = "00" # on quote
+        if "order_type" in kwargs.keys():
+            order_type = kwargs["order_type"]
     
         url = f"{Connector.base_url}/uapi/domestic-stock/v1/trading/order-cash"
         headers = self.form_common_headers(tr_id=tr_id)
         payload = { 
-            "CANO" : "", # this should be implemented in account.py
-            "ACNT_PRDT_CD" : "", # this should be implemented in account.py
+            "CANO" : self.account_no, 
+            "ACNT_PRDT_CD" : self.prdt_cd, 
             "PDNO" : ticker,
             "ORD_DVSN" : order_type,
             "ORD_QTY" : str(quantity),

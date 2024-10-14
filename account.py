@@ -26,8 +26,8 @@ class Account(Connector):
         headers = self.form_common_headers(tr_id="TTTC8434R")
         acno, prdt_cd = self.get_full_account()
         payload = { 
-            "CANO" : acno, # this should be implemented in account.py
-            "ACNT_PRDT_CD" : prdt_cd, # this should be implemented in account.py
+            "CANO" : acno, 
+            "ACNT_PRDT_CD" : prdt_cd,
             "AFHR_FLPR_YN" : "N",
             "OFL_YN" : "",
             "INQR_DVSN" : "02",
@@ -57,4 +57,3 @@ class Account(Connector):
     def get_savings(self):
         pass
 
-    
