@@ -1,7 +1,29 @@
 from datetime import datetime
+import copy
 
 def get_current_time():
     return datetime.now().strftime("%Y%m%d_%H_%M_%S")
+
+def get_current_day():
+    return datetime.now().strftime("%Y%m%d")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def print_orderbook(data):
     recvvalue = data.split('^')  # 수신데이터를 split '^'
@@ -49,26 +71,41 @@ def print_orderbook(data):
     print("주식매매 구분코드      [%s]" % (recvvalue[58]))
 
 
-menulist = "유가증권단축종목코드|주식체결시간|주식현재가|전일대비부호|전일대비|전일대비율|가중평균주식가격|주식시가|주식최고가|주식최저가|매도호가1|매수호가1|체결거래량|누적거래량|누적거래대금|매도체결건수|매수체결건수|순매수체결건수|체결강도|총매도수량|총매수수량|체결구분|매수비율|전일거래량대비등락율|시가시간|시가대비구분|시가대비|최고가시간|고가대비구분|고가대비|최저가시간|저가대비구분|저가대비|영업일자|신장운영구분코드|거래정지여부|매도호가잔량|매수호가잔량|총매도호가잔량|총매수호가잔량|거래량회전율|전일동시간누적거래량|전일동시간누적거래량비율|시간구분코드|임의종료구분코드|정적VI발동기준가"
+menustr = "file_no,유가증권단축종목코드,주식체결시간,주식현재가,전일대비부호,전일대비,전일대비율,가중평균주식가격,주식시가,주식최고가,주식최저가,매도호가1,매수호가1,체결거래량,누적거래량,누적거래대금,매도체결건수,매수체결건수,순매수체결건수,체결강도,총매도수량,총매수수량,체결구분,매수비율,전일거래량대비등락율,시가시간,시가대비구분,시가대비,최고가시간,고가대비구분,고가대비,최저가시간,저가대비구분,저가대비,영업일자,신장운영구분코드,거래정지여부,매도호가잔량,매수호가잔량,총매도호가잔량,총매수호가잔량,거래량회전율,전일동시간누적거래량,전일동시간누적거래량비율,시간구분코드,임의종료구분코드,정적VI발동기준가\n"
 
-def print_purchased(data_cnt, data):
-    menustr = menulist.split('|')
-    pValue = data.split('^')
-    i = 0
-    ret = ""
-    for cnt in range(data_cnt): # 넘겨받은 체결데이터 개수만큼 print 한다
-        ret += f"file_no : ({cnt+1} / {data_cnt})"
-        for menu in menustr:
-            ret += f"{menu} : {pValue[i]}\n"
-            i += 1
+def format_csv_purchased(data_cnt, data):
+    ret = copy.deepcopy(menustr)
+    for cnt in range(data_cnt):
+        value_row = ""
+        value_row += f"{cnt},"
+
+        values = data.split('^')
+        for value in values:
+            value_row += f"{value},"
+        value_row = value_row[:-1] 
+        value_row += "\n"
+        ret += value_row
     return ret
+    # menulist = menustr.split('|')
+    # pValue = data.split('^')
+    # ret = ""
+    # for cnt in range(data_cnt): 
+    #     ret += f"file_no,"
+    #     for menu in menulist:
+    #         if menu == menulist[-1]: ret += f"{menu}\n" 
+    #         else: ret += f"{menu},"
+            
+    #     ret += f"{cnt+1},"
+    #     for i in range(len(menulist)):
+    #         if menu == menulist[-1]: ret += f"{pValue[i]}\n"
+    #         else: ret += f"{pValue[i]},"
 
-def aes_cbc_base64_dec(key, iv, cipher_text):
-    """
-    :param key:  str type AES256 secret key value
-    :param iv: str type AES256 Initialize Vector
-    :param cipher_text: Base64 encoded AES256 str
-    :return: Base64-AES256 decodec str
-    """
-    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
-    return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))
+# def aes_cbc_base64_dec(key, iv, cipher_text):
+#     """
+#     :param key:  str type AES256 secret key value
+#     :param iv: str type AES256 Initialize Vector
+#     :param cipher_text: Base64 encoded AES256 str
+#     :return: Base64-AES256 decodec str
+#     """
+#     cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+#     return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))

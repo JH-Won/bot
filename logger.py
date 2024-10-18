@@ -29,7 +29,7 @@ class Logger(object):
         
         streamHandler = logging.StreamHandler()
         streamHandler.setFormatter(formatter)
-        fileHandler = logging.FileHandler(dirname + f"/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log")
+        fileHandler = logging.FileHandler(dirname + f"/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log", encoding='UTF-8')
         fileHandler.setFormatter(formatter)
 
         self._logger.addHandler(streamHandler)
