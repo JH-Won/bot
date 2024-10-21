@@ -4,7 +4,7 @@ import json
 import aiofiles
 
 # root path
-project_path = 'D:/python-api'
+project_path = 'E:/bot'
 sys.path.append(project_path)
 
 from websocket.ws_io_utils import get_current_time, get_current_day, format_csv_purchased
@@ -18,6 +18,7 @@ if not os.path.exists(output_dir):
 
 async def accumulate_data_forever():
     tickers = sys.argv[1:]
+    print(f'Given tickers : {tickers}')
 
     # accumulate data
     url = 'ws://ops.koreainvestment.com:21000'
@@ -34,6 +35,11 @@ async def accumulate_data_forever():
                 print("ws (re)connected.")
 
                 while True:
+
+                    if dead_count >= 120:
+                        print(f'it seems something wrong.. deaed count : {dead_count}.')
+                        break
+
                     for ticker in tickers:       
                         # making request data to send using ticker list 
                         send_data = f'''{{
@@ -65,15 +71,14 @@ async def accumulate_data_forever():
                                 await f.write(format_csv_purchased(data_cnt, recvstr[3]))
                         # response is subscription
                         else: 
-                            print(recv_data)
                             dead_count += 1
                             json_data = json.loads(recv_data)
                             tr_id = json_data['header']['tr_id']
                             if tr_id == 'PINGPONG':
                                 await ws.pong(recv_data)
 
-                        await asyncio.sleep(0.01)
-                    await asyncio.sleep(0.2)
+                        await asyncio.sleep(0.1)
+                    await asyncio.sleep(0.3)
 
         except Exception as e:
             print(str(e))
