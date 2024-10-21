@@ -8,3 +8,5 @@ example_*
 test_*
 logs
 key.json
+out_*
+df_*
