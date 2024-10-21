@@ -1,5 +1,5 @@
 from connector import Connector
-from enum import IntEnum
+from enum import IntEnum, Enum
 import requests
 from logger import logger
 
@@ -8,13 +8,21 @@ class DateScale(IntEnum):
     WEEK = 1
     MONTH = 2
 
+    
+
 class DomesticMarket(Connector):
+
+    class MarketCode(Enum):
+        ALL = "0000"
+        KOSPI = "0001"
+        KOSPI200 = "2001"
+        KOSDAQ = "1001"
 
     def __init__(self):
         super().__init__()
 
-    def get_stock_ranking(self):
-        url = f"{Connector.base_url}//uapi/domestic-stock/v1/ranking/fluctuation"
+    def get_stock_ranking(self, market_code=MarketCode):
+        url = f"{Connector.base_url}/uapi/domestic-stock/v1/ranking/fluctuation"
         headers = self.form_common_headers(tr_id="FHPST01700000", custtype="P")
         payload = {
             "fid_rsfl_rate2"            : ""	# 등락 비율2	String	Y	132	입력값 없을때 전체 (~ 비율
@@ -22,8 +30,8 @@ class DomesticMarket(Connector):
             ,"fid_cond_scr_div_code"    : "20170"	#조건 화면 분류 코드	String	Y	5	Unique key( 20170 )
             ,"fid_input_iscd"           : "0000"	#입력 종목코드	String	Y	12	0000(전체) 코스피(0001), 코스닥(1001), 코스피200(2001)
             ,"fid_rank_sort_cls_code"   : "0"	#순위 정렬 구분 코드	String	Y	2	0:상승율순 1:하락율순 2:시가대비상승율 3:시가대비하락율 4:변동율
-            ,"fid_input_cnt_1"          : "1"	#입력 수1	String	Y	12	0:전체 , 누적일수 입력
-            ,"fid_prc_cls_code"         : "0"	# 가격 구분 코드	String	Y	2	'fid_rank_sort_cls_code :0 상승율 순일때 (0:저가대비, 1:종가대비
+            ,"fid_input_cnt_1"          : "0"	#입력 수1	String	Y	12	0:전체 , 누적일수 입력
+            ,"fid_prc_cls_code"         : "1"	# 가격 구분 코드	String	Y	2	'fid_rank_sort_cls_code :0 상승율 순일때 (0:저가대비, 1:종가대비
             ,"fid_input_price_1"        : ""	# 입력 가격1	String	Y	12	입력값 없을때 전체 (가격 ~)
             ,"fid_input_price_2"        : ""	# 입력 가격2	String	Y	12	입력값 없을때 전체 (~ 가격)
             ,"fid_vol_cnt"              : ""	# 거래량 수	String	Y	12	입력값 없을때 전체 (거래량 ~)
@@ -32,6 +40,7 @@ class DomesticMarket(Connector):
             ,"fid_div_cls_code"         : "0"	# 분류 구분 코드	String	Y	2	0:전체
             ,"fid_rsfl_rate1"           : ""	# 등락 비율1	String	Y	132	입력값 없을때 전체 (비율 ~)
         }
+        logger.info(f"payload : {payload}")
         response = requests.get(
             url=url,
             headers=headers,
@@ -39,7 +48,54 @@ class DomesticMarket(Connector):
         )
 
         return response.json()
+    
+    def get_volumne_ranking(self):
+        url = f"{Connector.base_url}/uapi/domestic-stock/v1/quotations/volume-rank"
+        headers = self.form_common_headers(tr_id="FHPST01710000", custtype="P")
+        payload = {
+            "FID_COND_MRKT_DIV_CODE" : "J",	
+            "FID_COND_SCR_DIV_CODE" : "20171",
+            "FID_INPUT_ISCD" : "0000",
+            "FID_DIV_CLS_CODE" : "0",
+            "FID_BLNG_CLS_CODE" : "4",  #0 : 평균거래량 1:거래증가율 2:평균거래회전율 3:거래금액순 4:평균거래금액회전율 
+            "FID_TRGT_CLS_CODE" : "111111111",
+            "FID_TRGT_EXLS_CLS_CODE" : "0000000000",
+            "FID_INPUT_PRICE_1" : "",
+            "FID_INPUT_PRICE_2" : "",
+            "FID_VOL_CNT" : "",
+            "FID_INPUT_DATE_1" : ""
+        }
+        # FID_COND_MRKT_DIV_CODE	조건 시장 분류 코드	String	Y	2	J
+        # FID_COND_SCR_DIV_CODE	조건 화면 분류 코드	String	Y	5	20171
+        # FID_INPUT_ISCD	입력 종목코드	String	Y	12	0000(전체) 기타(업종코드)
+        # FID_DIV_CLS_CODE	분류 구분 코드	String	Y	2	0(전체) 1(보통주) 2(우선주)
+        # FID_BLNG_CLS_CODE	소속 구분 코드	String	Y	2	0 : 평균거래량 1:거래증가율 2:평균거래회전율 3:거래금액순 4:평균거래금액회전율
+        # FID_TRGT_CLS_CODE	대상 구분 코드	String	Y	32	1 or 0 9자리 (차례대로 증거금 30% 40% 50% 60% 100% 신용보증금 30% 40% 50% 60%)
+        # ex) "111111111"
+        # FID_TRGT_EXLS_CLS_CODE	대상 제외 구분 코드	String	Y	32	1 or 0 10자리 (차례대로 투자위험/경고/주의 관리종목 정리매매 불성실공시 우선주 거래정지 ETF ETN 신용주문불가 SPAC)
+        # ex) "0000000000"
+        # FID_INPUT_PRICE_1	입력 가격1	String	Y	12	가격 ~
+        # ex) "0"
 
+        # 전체 가격 대상 조회 시 FID_INPUT_PRICE_1, FID_INPUT_PRICE_2 모두 ""(공란) 입력
+        # FID_INPUT_PRICE_2	입력 가격2	String	Y	12	~ 가격
+        # ex) "1000000"
+
+        # 전체 가격 대상 조회 시 FID_INPUT_PRICE_1, FID_INPUT_PRICE_2 모두 ""(공란) 입력
+        # FID_VOL_CNT	거래량 수	String	Y	12	거래량 ~
+        # ex) "100000"
+
+        # 전체 거래량 대상 조회 시 FID_VOL_CNT ""(공란) 입력
+        # FID_INPUT_DATE_1	입력 날짜1	String	Y	10	""(공란) 입력
+        
+
+        logger.info(f"payload : {payload}")
+        response = requests.get(
+            url=url,
+            headers=headers,
+            params=payload
+        )
+        return response.json()
 
 class ForeignMarket(Connector):
     
