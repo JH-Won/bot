@@ -1,10 +1,9 @@
 import sys
 import subprocess
 import pandas as pd 
-from tabulate import tabulate
 
 # root path
-project_path = 'E:/bot'
+project_path = 'D:/python-api'
 sys.path.append(project_path)
 
 from market_info import DomesticMarket
@@ -20,19 +19,23 @@ def get_high_vol_up():
     vol_top5 = df_vol['mksc_shrn_iscd'].values[:5]
     price_top5 = df_price['stck_shrn_iscd'].values[:5]
     
-    picked = None
+    print(vol_top5, price_top5)
+
+    picked = []
     for vol_code in vol_top5:
         for price_code in price_top5:
             if vol_code == price_code: 
-                picked = vol_code
-                return picked
-    assert picked is not None
+                picked.append(vol_code)
+                if len(picked) >= 3: return picked
+
+    assert len(picked) > 0
+    return picked
 
 
 if __name__ == '__main__':
-    ticker = get_high_vol_up()
+
+    tickers = get_high_vol_up()
     subprocess.run([
         'python',
-        f'{project_path}/websocket/ws_accumulate_data.py',
-        ticker
-    ])
+        f'{project_path}/websocket/ws_accumulate_data.py ',
+    ] + tickers)

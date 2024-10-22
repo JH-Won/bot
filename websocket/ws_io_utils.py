@@ -9,22 +9,6 @@ def get_current_day():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def print_orderbook(data):
     recvvalue = data.split('^')  # 수신데이터를 split '^'
 

@@ -4,7 +4,7 @@ import json
 import aiofiles
 
 # root path
-project_path = 'E:/bot'
+project_path = 'D:/python-api'
 sys.path.append(project_path)
 
 from websocket.ws_io_utils import get_current_time, get_current_day, format_csv_purchased
@@ -36,8 +36,8 @@ async def accumulate_data_forever():
 
                 while True:
 
-                    if dead_count >= 120:
-                        print(f'it seems something wrong.. deaed count : {dead_count}.')
+                    if dead_count >= 240:
+                        print(f'it seems something wrong.. deaed count : {dead_count}. Reconnect ws...')
                         break
 
                     for ticker in tickers:       
@@ -77,8 +77,8 @@ async def accumulate_data_forever():
                             if tr_id == 'PINGPONG':
                                 await ws.pong(recv_data)
 
-                        await asyncio.sleep(0.1)
-                    await asyncio.sleep(0.3)
+                        await asyncio.sleep(0.05)
+                    await asyncio.sleep(0.2)
 
         except Exception as e:
             print(str(e))
