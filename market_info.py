@@ -9,7 +9,6 @@ class DateScale(IntEnum):
     MONTH = 2
 
     
-
 class DomesticMarket(Connector):
 
     class MarketCode(Enum):
@@ -49,6 +48,36 @@ class DomesticMarket(Connector):
 
         return response.json()
     
+    def get_minute_data(self, ticker):
+        url = f"{Connector.base_url}/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice"
+        headers = self.form_common_headers(tr_id="FHKST03010200", custtype="P")
+        payload = {
+            "FID_ETC_CLS_CODE" : "", # FID 기타 구분 코드	String	Y	2	기타 구분 코드("")
+            "FID_COND_MRKT_DIV_CODE" : "J", #	FID 조건 시장 분류 코드	String	Y	8	시장 분류 코드 (J : 주식, ETF, ETN U: 업종)
+            "FID_INPUT_ISCD" : f"{ticker}", # 입력 종목코드	String	Y	2	종목번호 (6자리) ETN의 경우, Q로 시작 (EX. Q500001)
+            "FID_INPUT_HOUR_1" : "153000",  #	FID 입력 시간1	String	Y	2	조회대상(FID_COND_MRKT_DIV_CODE)에 따라 입력하는 값 상이
+
+            # 종목(J)일 경우, 조회 시작일자(HHMMSS)
+            # ex) "123000" 입력 시 12시 30분 이전부터 1분 간격으로 조회
+
+            # 업종(U)일 경우, 조회간격(초) (60 or 120 만 입력 가능)
+            # ex) "60" 입력 시 현재시간부터 1분간격으로 조회
+            # "120" 입력 시 현재시간부터 2분간격으로 조회
+
+            # ※ FID_INPUT_HOUR_1 에 미래일시 입력 시에 현재가로 조회됩니다.
+            # ex) 오전 10시에 113000 입력 시에 오전 10시~11시30분 사이의 데이터가 오전 10시 값으로 조회됨
+            "FID_PW_DATA_INCU_YN" : "N" #	FID 과거 데이터 포함 여부
+        }
+        
+
+        logger.info(f"payload : {payload}")
+        response = requests.get(
+            url=url,
+            headers=headers,
+            params=payload
+        )
+        return response.json()
+
     def get_volumne_ranking(self):
         url = f"{Connector.base_url}/uapi/domestic-stock/v1/quotations/volume-rank"
         headers = self.form_common_headers(tr_id="FHPST01710000", custtype="P")
@@ -74,6 +103,8 @@ class DomesticMarket(Connector):
             params=payload
         )
         return response.json()
+    
+    
 
 class ForeignMarket(Connector):
     
