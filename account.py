@@ -1,4 +1,3 @@
-# this is account
 from connector import Connector
 from logger import logger
 import os
@@ -8,52 +7,52 @@ import pandas as pd
 
 class Account(Connector):
 
-    __account_no = None 
-
-    @staticmethod
-    def __set_account_no():
-        Account.__account_no = os.environ["ACCOUNT_NO"]
-
-    def __init__(self, prdt_cd):
-        Account.__set_account_no()
+    def __init__(self, cano, prdt_cd, is_foreign):
+        super().__init__()
+        self.cano = cano
         self.prdt_cd = prdt_cd
+        self.is_foreign = is_foreign
 
-    def get_full_account(self):
-        return (Account.__account_no, self.prdt_cd)
+    def get_trading_report(self, start_date, end_date, currency='krw'):
+        url = f"{Connector.base_url}/uapi/overseas-stock/v1/trading/inquire-period-profit" if self.is_foreign else f"{Connector.base_url}/uapi/domestic-stock/v1/trading/inquire-period-trade-profit"
 
-    def __get_current_balance(self):
-        url = f"{Connector.base_url}/uapi/domestic-stock/v1/trading/inquire-balance"
-        headers = self.form_common_headers(tr_id="TTTC8434R")
-        acno, prdt_cd = self.get_full_account()
-        payload = { 
-            "CANO" : acno, 
-            "ACNT_PRDT_CD" : prdt_cd,
-            "AFHR_FLPR_YN" : "N",
-            "OFL_YN" : "",
-            "INQR_DVSN" : "02",
-            "UNPR_DVSN" : "N",
-            "FUND_STTL_ICLD_YN" : "N",
-            "FNCG_AMT_AUTO_RDPT_YN" : "N",
-            "PRCS_DVSN" : "00",
-            "CTX_AREA_FK100": "",
-            "CTX_AREA_NK100": ""
+        headers = self.form_common_headers(
+            tr_id = "TTTS3039R" if self.is_foreign else "TTTC8715R"
+            ,custtype="P"
+        )
+
+        payload = {
+            "CANO" : self.cano,
+            "OVRS_EXCG_CD" : "",
+            "ACNT_PRDT_CD" : self.prdt_cd,
+            "NATN_CD" : "",
+            "CRCY_CD" : "",
+            "PDNO" : "",
+            "INQR_STRT_DT" : start_date,
+            "INQR_END_DT" : end_date,
+            "WCRC_FRCR_DVSN_CD" : "02" if currency == 'krw' else "01",
+            "CTX_AREA_NK200" : "",
+            "CTX_AREA_FK200" : "", 
+        } if self.is_foreign else {
+            "CANO" : self.cano,
+            "SORT_DVSN" : "01",
+            "ACNT_PRDT_CD" : self.prdt_cd,
+            "PDNO" : "",
+            "INQR_STRT_DT" : start_date,
+            "INQR_END_DT" : end_date,
+            "CBLC_DVSN" : "00",
+            "CTX_AREA_NK100" : "",
+            "CTX_AREA_FK100" : "",  
         }
-        logger.info(payload)
+
+        logger.info(f"payload : {payload}")
         response = requests.get(
             url=url,
             headers=headers,
             params=payload
         )
-        ret = response.json()
-        try:
-            output1_df = pd.DataFrame(ret["output1"])
-            output2_df = pd.DataFrame(ret["output2"])
-            return output1_df, output2_df
-        except Exception as e:
-            logger.info(ret["msg1"])
-            logger.warning(e)
-    
+        return response.json()
 
-    def get_savings(self):
+
+    def get_current_assets(self, currency='krw'):
         pass
-
