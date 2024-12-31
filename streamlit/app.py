@@ -15,38 +15,43 @@ accounts = [
     "64643829"
 ]
 
-domestic_results = []
-foreign_results = []
+def get_yearwise_trading_data():
+    domestic_results = []
+    foreign_results = []
 
-for cano in accounts:
-    for is_foreign in [True, False]:
-        account = Account(
-            cano = cano,
-            is_foreign = is_foreign
-        )
-        try:
-            result =  account.get_trading_report(
-                start_date=get_year_ago(),
-                end_date=get_today(),
-                currency="krw"
+    for cano in accounts:
+        for is_foreign in [True, False]:
+            account = Account(
+                cano = cano,
+                is_foreign = is_foreign
             )
-            foreign_results.append(pd.DataFrame(result['output1'])) if is_foreign \
-                else domestic_results.append(pd.DataFrame(result['output1']))
-        except Exception as e:
-            logger.warning(str(e))
-            st.warning(f"Error occurred while inqurying data : {e}")
-            pass
+            try:
+                result = account.get_trading_report(
+                    start_date=get_year_ago(),
+                    end_date=get_today(),
+                    currency="krw"
+                )
+                foreign_results.append(pd.DataFrame(result['output1'])) if is_foreign else domestic_results.append(pd.DataFrame(result['output1']))
+            except Exception as e:
+                logger.warning(str(e))
 
-if domestic_results:
-    domestic_results = pd.concat(domestic_results)
-if foreign_results:
-    foreign_results = pd.concat(foreign_results)
+    if domestic_results:
+        domestic_results = pd.concat(domestic_results)
+    if foreign_results:
+        foreign_results = pd.concat(foreign_results).sort_values("trad_day", ascending=True)
+    return domestic_results, foreign_results
 
-    
-st.title("Summarized Result")
 
-st.markdown("## 국내")
-st.dataframe(domestic_results)
+if __name__ == "__main__":
 
-st.markdown('## 해외')
-st.dataframe(foreign_results)
+    st.set_page_config(layout="wide")
+
+    domestic_results, foreign_results = get_yearwise_trading_data()
+
+    st.title("Summarized Result")
+
+    st.markdown("## 국내")
+    st.dataframe(domestic_results)
+
+    st.markdown('## 해외')
+    st.dataframe(foreign_results)

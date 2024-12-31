@@ -49,7 +49,9 @@ class Account(Connector):
             headers=headers,
             params=payload
         )
-        return response.json()
+        ret = response.json()
+        logger.info(f"{ret["msg1"]}")
+        return ret
 
 
     def get_current_assets(self, currency='krw'):
