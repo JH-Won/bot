@@ -5,6 +5,19 @@ from datetime import datetime
 from logger import logger
 from system_utils import get_init_path
 
+AUTH_JSON_PATH = f"{get_init_path()}/auth.json"
+
+
+def get_all_accounts():
+    with open(AUTH_JSON_PATH, "r") as f:
+        key_json =  json.load(f)
+        return key_json["ACCOUNTS"]
+
+def get_connection_key(cano):
+    accounts = get_all_accounts()
+    return next(filter(lambda item: item["CANO"] == cano, accounts), None)
+
+
 class Connector(object):
 
     # static members, should be used as constants
@@ -14,25 +27,17 @@ class Connector(object):
         "Content-Type": "application/json; charset=UTF-8"
     }
 
-    def __init__(self):
-        self._appkey = os.environ["APP_KEY"]
-        self._appsecret = os.environ["APP_SECRET"]
-        self.token_dict = self.__get_token()
+    def __init__(self, cano):
+        account_key = get_connection_key(cano)
+        self._cano = cano
+        self._prdt_cd = account_key["PRDT_CD"]
+        self._appkey = account_key["APP_KEY"]
+        self._appsecret = account_key["APP_SECRET"]
+        self.token_dict = account_key["TOKEN"] 
+        if (not self.token_dict) or (datetime.now() > datetime.strptime(self.token_dict["access_token_token_expired"], "%Y-%m-%d %H:%M:%S")):
+            self.token_dict = self.__get_new_token()
 
-    def __is_token_expired(self):
-        try:
-            with open(self.token_path, "r") as token_dict:
-                token_dict = json.load(token_dict)
-                return datetime.now() > datetime.strptime(token_dict["access_token_token_expired"], "%Y-%m-%d %H:%M:%S")
-        except Exception as e:
-            logger.warning(str(e))
-            return False
-
-    def __get_token(self):
-        if os.path.exists(self.token_path) and (not self.__is_token_expired()):
-            with open(self.token_path, "r") as token_dict:
-                return json.load(token_dict)
-
+    def __get_new_token(self):
         url = Connector.base_url + "/oauth2/tokenP"
 
         payload = {
@@ -50,10 +55,18 @@ class Connector(object):
             if "error_description" in ret:
                 logger.warning(ret["error_description"])
             else:
-                logger.info(f"Auth Token assigned : {ret}")
                 # write a daily token for cache
-                with open(self.token_path, "w") as token_dict:
-                    token_dict.write(json.dumps(ret))
+                with open(AUTH_JSON_PATH, "r") as f:
+                    data = json.load(f)
+                for item in data["ACCOUNTS"]:
+                    if item["CANO"] == self._cano:
+                        item["TOKEN"] = ret 
+                        break
+                with open(AUTH_JSON_PATH, "w") as f:
+                    json.dump(data, f, indent=4)
+                
+                logger.info(f"Auth token successfully assigned and cached")
+
                 return ret
         except Exception as e:
             logger.warning(str(e))
@@ -68,4 +81,5 @@ class Connector(object):
 
 # This is for test
 if __name__ == "__main__":
-    Conn = Connector()
+    Conn = Connector("81263805")
+    print(Conn.form_common_headers())

@@ -7,24 +7,22 @@ import pandas as pd
 
 class Account(Connector):
 
-    def __init__(self, cano, prdt_cd, is_foreign):
-        super().__init__()
-        self.cano = cano
-        self.prdt_cd = prdt_cd
+    def __init__(self, cano, is_foreign):
+        super().__init__(cano=cano)
         self.is_foreign = is_foreign
 
     def get_trading_report(self, start_date, end_date, currency='krw'):
         url = f"{Connector.base_url}/uapi/overseas-stock/v1/trading/inquire-period-profit" if self.is_foreign else f"{Connector.base_url}/uapi/domestic-stock/v1/trading/inquire-period-trade-profit"
 
         headers = self.form_common_headers(
-            tr_id = "TTTS3039R" if self.is_foreign else "TTTC8715R"
-            ,custtype="P"
+            tr_id = "TTTS3039R" if self.is_foreign else "TTTC8715R",
+            custtype = "P"
         )
 
         payload = {
-            "CANO" : self.cano,
+            "CANO" : self._cano,
             "OVRS_EXCG_CD" : "",
-            "ACNT_PRDT_CD" : self.prdt_cd,
+            "ACNT_PRDT_CD" : self._prdt_cd,
             "NATN_CD" : "",
             "CRCY_CD" : "",
             "PDNO" : "",
@@ -34,9 +32,9 @@ class Account(Connector):
             "CTX_AREA_NK200" : "",
             "CTX_AREA_FK200" : "", 
         } if self.is_foreign else {
-            "CANO" : self.cano,
+            "CANO" : self._cano,
             "SORT_DVSN" : "01",
-            "ACNT_PRDT_CD" : self.prdt_cd,
+            "ACNT_PRDT_CD" : self._prdt_cd,
             "PDNO" : "",
             "INQR_STRT_DT" : start_date,
             "INQR_END_DT" : end_date,
